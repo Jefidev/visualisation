@@ -1,28 +1,34 @@
 <template>
+
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+
+    <div class="">
+
+     <world-map></world-map>
+
+    </div>
+  
   </div>
+
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import WorldMap from "./components/WorldMap.vue";
 
 export default {
   name: "app",
   components: {
-    HelloWorld
+    WorldMap
   }
 };
 </script>
 
 <style>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.w-960 {
+
+  width: 960px;
+  height: 600px;
+  margin: auto;
+
 }
 </style>
