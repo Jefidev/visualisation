@@ -2,9 +2,9 @@
 
   <div id="app">
 
-    <div class="">
+    <div>
 
-     <world-map></world-map>
+     <world-map :ufos="ufos"></world-map>
 
     </div>
   
@@ -14,12 +14,51 @@
 
 <script>
 import WorldMap from "./components/WorldMap.vue";
+import axios from "axios"
 
 export default {
   name: "app",
+
+  data() { 
+    
+    return {
+
+      ufos: []
+
+    }
+  },
+
   components: {
     WorldMap
+  },
+
+  created() {
+
+    this.getData()
+
+  },
+
+  methods: {
+
+    getData() {
+
+      axios.get('http://localhost:8080/datasets/ufo_500.json')
+      .then(response => {
+        console.log("Data received")
+        response.data.forEach( (item, i) => {
+          this.$set(this.ufos, i, item)
+        }
+      )})
+      .catch((err, response) => {
+        console.log("An error occured during data loading:")
+        console.log(err)
+        this.ufos.splice(0)
+      })
+
+    }
+
   }
+
 };
 </script>
 
