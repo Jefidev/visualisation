@@ -10,6 +10,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "mapbox-gl": "^0.50.0",
+    "moment": "^2.22.2",
+    "typeit": "^5.10.7",
     "vue": "^2.5.17",
     "vue-mapbox": "^0.0.34",
     "vue-timers": "^1.7.3"

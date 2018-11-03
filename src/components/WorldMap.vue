@@ -3,109 +3,202 @@
 <div>
 
 
-  <mgl-map
-    :accessToken="accessToken"
-    :mapStyle.sync="mapStyle"
-    :center="center"
-    :zoom="zoom"
-    :interactive="false"
-  >
+  <div id='map'></div>
+
+  <div id="typing" class="absolute pin-l pin-b m-4 mb-16 w-1/4 text-green-dark uppercase text-xs leading-loose grayscale  font-semibold">
     
-        <mgl-marker ref="marker" :coordinates="[-90.585522, 41.8333333]">
-          <div slot="marker">
-            <div class="marker">
-              <img src="../assets/images/saucer.png" alt="">
-            </div>
-            </div> 
-        </mgl-marker>
+  </div>
 
-       
-  </mgl-map>
-
-  <div class="bg-white p-6 absolute pin-t pin-l m-8 w-1/2 rounded text-xs">
-
-    {{ Date.parse(ufos[12].datetime) }}        
-   
-
+  <div class="absolute pin-r pin-b m-4 mr-32 mb-16 text-white uppercase text-lg leading-loose grayscale  font-semibold">
+    {{ timeAsText }}
   </div>
 
   </div>
 </template>
 
 <script>
-
-import {
-  MglMap,
-  MglNavigationControl,
-  MglGeolocateControl,
-  MglPopup,
-  MglMarker
-} from "vue-mapbox";
-
 const ACCESS_TOKEN =
   "pk.eyJ1Ijoic2ltb25nZW5pbiIsImEiOiJjam5meDY4ZncwMmd0M3FxaTdmc2FqNzRiIn0.vlyNxz2sNsmEI4hAVQ-S5Q";
 const MAP_STYLE = "mapbox://styles/simongenin/cjng1f51h34vo2sqyl01e0ffl";
-const CENTER = [-98.585522, 39.8333333]
-const ZOOM = 4
+const CENTER = [-98.585522, 39.8333333];
+const ZOOM = 4;
 
-import VueTimers from 'vue-timers/mixin'
+import VueTimers from "vue-timers/mixin";
+import moment from "moment";
+import Vue from "vue";
+
+import mapboxgl from "mapbox-gl";
+
+import TypeIt from 'typeit'
 
 export default {
-  components: {
-    MglMap,
-    MglNavigationControl,
-    MglGeolocateControl,
-    MglPopup,
-    MglMarker
-  },
+  components: {},
 
   mixins: [VueTimers],
 
-  props: ['ufos'],
+  props: {
+    ufos: {
+      required: true
+    },
+    startDate: {
+      // YYYY-MM-DD
+      default: () => moment("1950-01-01")
+    }
+  },
 
   timers: {
-    addMonth: { time: 1000, autostart: true, repeat: true },
+    addMonth: { time: 1000, autostart: false, repeat: true },
+    changeText: { time: 5000, autostart: true, repeat: true }
   },
 
   data() {
     return {
       accessToken: ACCESS_TOKEN,
       mapStyle: MAP_STYLE,
-      center: CENTER, 
+      center: CENTER,
       zoom: ZOOM,
 
-      currentSimUnit: 0
-      
-    }
+      map: null,
+      icon: null,
+
+      lastTime: this.startDate,
+      currentTime: moment(this.startDate).add(1, "month"),
+      time: 100,
+      timeToShow: 500,
+      timeAsText: '',
+
+      currentText: '',
+      typing: null
+    };
   },
 
   methods: {
 
-    addMonth () {
+   
 
-      this.currentSimUnit++
+    addMonth() {
+      this.lastTime = this.lastTime.add(1, "month");
+      this.currentTime = this.currentTime.add(1, "month");
+      this.timeAsText = this.currentTime.format('MMMM, YYYY')
+
+      let ufosToDisplay = this.ufos.filter(
+        element =>
+          element.date.isAfter(this.lastTime) &&
+          element.date.isBefore(this.currentTime)
+      );
+
+      ufosToDisplay.forEach(element => {
+
+        let icon = document.createElement("div");
+        icon.innerHTML = `<div class="marker">
+                  <img src="saucer.png" alt="">
+                </div>`;
+        icon = icon.children[0];
+
+        let marker = new mapboxgl.Marker({ element: icon });
+
+        marker.setLngLat([element.long, element.lat]);
+
+        marker.addTo(this.map);
+
+        setInterval(() => {
+          marker.remove();
+        }, 800);
+      });
+    },
+
+    changeText() {
+
+    if (this.ufos) {
+      const index = Math.floor(Math.random() * this.ufos.length);
+      let text = this.ufos[index].comment
+
+      this.typing.delete().type(text)
 
     }
 
   },
+  },
+
+  
 
   mounted() {
+    mapboxgl.accessToken =
+      "pk.eyJ1Ijoic2ltb25nZW5pbiIsImEiOiJjam5meDY4ZncwMmd0M3FxaTdmc2FqNzRiIn0.vlyNxz2sNsmEI4hAVQ-S5Q";
 
+    this.map = new mapboxgl.Map({
+      container: "map",
+      style: this.mapStyle,
+      center: this.center,
+      zoom: this.zoom,
+      interactive: true
+    });
+
+    this.timers.addMonth.time = this.time;
+    this.$timer.start("addMonth");
+
+    this.typing = new TypeIt('#typing', {
+      strings: '',
+      speed: 20,
+      deleteSpeed: 5,
+      autoStart: false
+    });
 
   }
-
 };
+
+function animateMarker(timestamp, marker) {
+
+  // Update the data to a new position based on the animation timestamp. The
+  // divisor in the expression `timestamp / 1000` controls the animation speed.
+
+  let ll = marker.getLngLat().toArray();
+  let lat = ll[1];
+  let lng = ll[0];
+
+  // const randomA = Math.floor((Math.random() * 5) - 1.5) / 100;
+  // const randomB = Math.floor((Math.random() * 5) - 1.5) / 100;
+
+  // const randomA = Math.floor((Math.random() * 75)) / 100;
+  // const randomB = Math.floor((Math.random() * 75)) / 100;
+
+  const newLat = lat + (0.01 * lat)
+  let newLng = 0
+
+  if (Math.round(Math.random()))
+    newLng = lng + (0.003 * lng)
+  else 
+    newLng = lng - (0.003 * lng)
+
+
+  try {
+    marker.setLngLat([newLng, newLat]);
+  }
+  catch(err) {
+    marker.remove()
+  }
+
+  requestAnimationFrame(function(timestamp) {
+    animateMarker(timestamp, marker);
+  });
+}
 </script>
 
 <style>
 .mapboxgl-map {
-	width: 100%;
-	height: 100vh;
+  width: 100%;
+  height: 100vh;
 }
 
 .marker {
   height: 24px;
   width: 24px;
   z-index: 10;
+}
+
+.text-vs {
+
+  font-size: 0.5rem;
+
 }
 </style>
