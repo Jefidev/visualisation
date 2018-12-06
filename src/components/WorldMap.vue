@@ -1,16 +1,25 @@
 
 <template>
-<div>
+  <div>
+    <div id="map"></div>
 
+    <div
+      id="typing"
+      class="absolute pin-l pin-b m-4 mb-16 w-1/4 text-green-dark uppercase text-xs leading-loose grayscale font-semibold"
+    ></div>
 
-  <div id='map'></div>
+    <div
+      class="absolute pin-r pin-b m-4 mr-32 mb-16 text-white uppercase text-lg leading-loose grayscale font-semibold"
+    >
+      <controls @play="play()" @pause="pause()" @faster="faster()" @slower="slower()"></controls>
+    </div>
 
-  <div id="typing" class="absolute pin-l pin-b m-4 mb-16 w-1/4 text-green-dark uppercase text-xs leading-loose grayscale  font-semibold">
-    
-  </div>
+    <div
+      class="absolute pin-r pin-b m-4 mr-32 mb-32 text-white uppercase text-lg leading-loose grayscale font-semibold"
+    >{{ timeAsText }}</div>
 
-  <div class="absolute pin-r pin-b m-4 mr-32 mb-16 text-white uppercase text-lg leading-loose grayscale  font-semibold">
-    {{ timeAsText }}
+  <div class="absolute pin-b pin-l w-full flex justify-center mb-4">
+    <div class="bg-white text-xs uppercase rounded px-6 py-4 font-bold cursor-pointer">En savoir plus</div>
   </div>
 
   </div>
@@ -29,10 +38,19 @@ import Vue from "vue";
 
 import mapboxgl from "mapbox-gl";
 
-import TypeIt from 'typeit'
+import TypeIt from "typeit";
+import axios from "axios";
+
+import fs from "fs";
+
+import Controls from "./Controls.vue";
+
+import { Howl, Howler } from "howler";
 
 export default {
-  components: {},
+  components: {
+    Controls
+  },
 
   mixins: [VueTimers],
 
@@ -65,21 +83,18 @@ export default {
       currentTime: moment(this.startDate).add(1, "month"),
       time: 100,
       timeToShow: 500,
-      timeAsText: '',
+      timeAsText: "",
 
-      currentText: '',
+      currentText: "",
       typing: null
     };
   },
 
   methods: {
-
-   
-
     addMonth() {
       this.lastTime = this.lastTime.add(1, "month");
       this.currentTime = this.currentTime.add(1, "month");
-      this.timeAsText = this.currentTime.format('MMMM, YYYY')
+      this.timeAsText = this.currentTime.format("MMMM, YYYY");
 
       let ufosToDisplay = this.ufos.filter(
         element =>
@@ -88,7 +103,6 @@ export default {
       );
 
       ufosToDisplay.forEach(element => {
-
         let icon = document.createElement("div");
         icon.innerHTML = `<div class="marker">
                   <img src="saucer.png" alt="">
@@ -101,26 +115,88 @@ export default {
 
         marker.addTo(this.map);
 
+        /*
+        setInterval((timestamp) => {
+          animateMarker(timestamp, marker)
+        }, 1000)
+        */
+
         setInterval(() => {
           marker.remove();
-        }, 800);
+        }, 600);
       });
     },
 
     changeText() {
+      if (this.ufos) {
+        const index = Math.floor(Math.random() * this.ufos.length);
+        let text = this.ufos[index].comment.replace(";", ",");
 
-    if (this.ufos) {
-      const index = Math.floor(Math.random() * this.ufos.length);
-      let text = this.ufos[index].comment
+        this.typing.delete().type(text);
+      }
+    },
 
-      this.typing.delete().type(text)
+    pause() {
+      this.$timer.stop("addMonth");
+    },
 
+    play() {
+      this.$timer.start("addMonth");
+    },
+
+    faster() {
+      this.$timer.stop("addMonth");
+      this.timers.addMonth.time = this.timers.addMonth.time - (1 / 3) * this.timers.addMonth.time;
+      this.$timer.start("addMonth");
+
+    },
+
+    slower() {
+      this.$timer.stop("addMonth");
+      this.timers.addMonth.time = this.timers.addMonth.time + (1 / 3) * this.timers.addMonth.time;
+      this.$timer.start("addMonth");
     }
+    
+    /*
+    launchMusic() {
 
-  },
-  },
+      
+      var sound = new Howl({
+        urls: ['http://localhost:8080/musics/who.mp3'],
+        autoplay: true,
+        loop: true,
+        volume: 0.5,
+        onend: function() {
+          alert('Finished!');
+        }
+      });
+      */
 
-  
+    /*
+      axios
+        .get("http://localhost:8080/musics/who.mp3")
+        .then(response => {
+          console.log("Music received");
+          console.log(response);
+         
+          
+          const outputFilename = '/file.mp3';
+          fs.writeFileSync(outputFilename, response.data);
+          
+          
+          var sound = new Howl({
+          urls: ['file.mp3']
+          }).play();
+          
+
+
+        })
+        .catch((err, response) => {
+          console.log("An error occured during music loading:");
+          console.log(err);
+        });
+  } */
+  },
 
   mounted() {
     mapboxgl.accessToken =
@@ -137,18 +213,18 @@ export default {
     this.timers.addMonth.time = this.time;
     this.$timer.start("addMonth");
 
-    this.typing = new TypeIt('#typing', {
-      strings: '',
+    this.typing = new TypeIt("#typing", {
+      strings: "",
       speed: 20,
       deleteSpeed: 5,
       autoStart: false
     });
 
+    // this.launchMusic()
   }
 };
 
 function animateMarker(timestamp, marker) {
-
   // Update the data to a new position based on the animation timestamp. The
   // divisor in the expression `timestamp / 1000` controls the animation speed.
 
@@ -162,20 +238,16 @@ function animateMarker(timestamp, marker) {
   // const randomA = Math.floor((Math.random() * 75)) / 100;
   // const randomB = Math.floor((Math.random() * 75)) / 100;
 
-  const newLat = lat + (0.01 * lat)
-  let newLng = 0
+  const newLat = lat + 0.01 * lat;
+  let newLng = 0;
 
-  if (Math.round(Math.random()))
-    newLng = lng + (0.003 * lng)
-  else 
-    newLng = lng - (0.003 * lng)
-
+  if (Math.round(Math.random())) newLng = lng + 0.003 * lng;
+  else newLng = lng - 0.003 * lng;
 
   try {
     marker.setLngLat([newLng, newLat]);
-  }
-  catch(err) {
-    marker.remove()
+  } catch (err) {
+    marker.remove();
   }
 
   requestAnimationFrame(function(timestamp) {
@@ -197,8 +269,6 @@ function animateMarker(timestamp, marker) {
 }
 
 .text-vs {
-
   font-size: 0.5rem;
-
 }
 </style>

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "howler": "^2.0.15",
     "mapbox-gl": "^0.50.0",
     "moment": "^2.22.2",
     "typeit": "^5.10.7",
