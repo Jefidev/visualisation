@@ -1,5 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
+import router from './router'
 
 // Import the tailwind css
 import '@/assets/css/tailwind.css'
@@ -15,5 +16,6 @@ Vue.use(VueMapbox, { mapboxgl: Mapbox })
 
 
 new Vue({
-  render: h => h(App)
+  render: h => h(App),
+  router
 }).$mount("#app");

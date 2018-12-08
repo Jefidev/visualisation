@@ -9,12 +9,15 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "c3": "^0.6.11",
     "howler": "^2.0.15",
     "mapbox-gl": "^0.50.0",
     "moment": "^2.22.2",
     "typeit": "^5.10.7",
     "vue": "^2.5.17",
+    "vue-c3": "^1.2.11",
     "vue-mapbox": "^0.0.34",
+    "vue-router": "^3.0.2",
     "vue-timers": "^1.7.3"
   },
   "devDependencies": {

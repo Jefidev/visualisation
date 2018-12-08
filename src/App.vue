@@ -1,10 +1,10 @@
 <template>
 
-  <div id="app">
+  <div id="app" class="bg-grey-darkest">
 
     <div>
 
-     <world-map :ufos="ufos"></world-map>
+     <router-view :ufos="ufos"></router-view>
 
     </div>
   
@@ -43,10 +43,11 @@ export default {
           response.data.forEach((item, i) => {
             // 10/10/1970 16:00
             this.$set(this.ufos, i, {
-              date: moment(item.datetime, "DD/MM/YYYY hh:mm"),
+              date: moment(item.datetime, "MM/DD/YYYY hh:mm"),
               lat: item.latitude,
               long: item.longitude,
-              comment: item.comments
+              comment: item.comments,
+              duration: item["duration (seconds)"]
             });
           });
           
