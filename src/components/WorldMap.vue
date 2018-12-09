@@ -86,7 +86,9 @@ export default {
       timeAsText: "",
 
       currentText: "",
-      typing: null
+      typing: null,
+
+      delay: 0,
     };
   },
 
