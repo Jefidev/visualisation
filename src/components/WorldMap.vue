@@ -19,7 +19,7 @@
     >{{ timeAsText }}</div>
 
     <div class="absolute pin-b pin-l w-full flex justify-center mb-4">
-      <router-link to="/about">
+      <router-link class="text-black no-underline" to="/about">
         <div
           class="bg-white text-xs uppercase rounded px-6 py-4 font-bold cursor-pointer"
         >En savoir plus</div>
