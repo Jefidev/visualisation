@@ -18,12 +18,13 @@
       class="absolute pin-r pin-b m-4 mr-32 mb-32 text-white uppercase text-lg leading-loose grayscale font-semibold"
     >{{ timeAsText }}</div>
 
-  <div class="absolute pin-b pin-l w-full flex justify-center mb-4">
-    <router-link to="/about">
-      <div class="bg-white text-xs uppercase rounded px-6 py-4 font-bold cursor-pointer">En savoir plus</div>
-    </router-link>
-  </div>
-
+    <div class="absolute pin-b pin-l w-full flex justify-center mb-4">
+      <router-link to="/about">
+        <div
+          class="bg-white text-xs uppercase rounded px-6 py-4 font-bold cursor-pointer"
+        >En savoir plus</div>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -90,16 +91,15 @@ export default {
       currentText: "",
       typing: null,
 
-      delay: 0,
+      delay: 200,
+
+      refsOnPause: [],
+      isPaused: false
     };
   },
 
   methods: {
-    addMonth() {
-      this.lastTime = this.lastTime.add(1, "month");
-      this.currentTime = this.currentTime.add(1, "month");
-      this.timeAsText = this.currentTime.format("MMMM, YYYY");
-
+    display(onPause = false) {
       let ufosToDisplay = this.ufos.filter(
         element =>
           element.date.isAfter(this.lastTime) &&
@@ -119,16 +119,22 @@ export default {
 
         marker.addTo(this.map);
 
-        /*
-        setInterval((timestamp) => {
-          animateMarker(timestamp, marker)
-        }, 1000)
-        */
+        if (onPause) this.refsOnPause.push(marker);
 
-        setInterval(() => {
-          marker.remove();
-        }, 600);
+        if (!onPause) {
+          setInterval(() => {
+            marker.remove();
+          }, this.timers.addMonth.time + this.delay);
+        }
       });
+    },
+
+    addMonth() {
+      this.lastTime = this.lastTime.add(1, "month");
+      this.currentTime = this.currentTime.add(1, "month");
+      this.timeAsText = this.currentTime.format("MMMM, YYYY");
+
+      this.display();
     },
 
     changeText() {
@@ -141,26 +147,34 @@ export default {
     },
 
     pause() {
+      this.isPaused = true
       this.$timer.stop("addMonth");
+      this.display(true);
     },
 
     play() {
+      this.isPaused = false
+      this.refsOnPause.forEach( (e) => { e.remove() } )
+      this.refsOnPause = []
       this.$timer.start("addMonth");
     },
 
     faster() {
       this.$timer.stop("addMonth");
-      this.timers.addMonth.time = this.timers.addMonth.time - (1 / 3) * this.timers.addMonth.time;
-      this.$timer.start("addMonth");
+      this.timers.addMonth.time = this.timers.addMonth.time / 2;
 
+      if (!this.isPaused)
+        this.$timer.start("addMonth");
     },
 
     slower() {
       this.$timer.stop("addMonth");
-      this.timers.addMonth.time = this.timers.addMonth.time + (1 / 3) * this.timers.addMonth.time;
-      this.$timer.start("addMonth");
+      this.timers.addMonth.time =
+        this.timers.addMonth.time * 2;
+      if (!this.isPaused)
+  this.$timer.start("addMonth");
     }
-    
+
     /*
     launchMusic() {
 
