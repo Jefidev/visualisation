@@ -50,7 +50,6 @@
 <script>
   import Vue from 'vue'
   import VueC3 from 'vue-c3'
-  import moment from 'moment'
 
   export default{
     name: 'Hello',
@@ -150,14 +149,13 @@
       }
     },
     mounted(){
-      console.log("mounted")
 
       this.draw_frequency_graph()
       this.draw_time_graph()
       // Generer les graphs
     },
     watch: { 
-      ufos: function(newVal, oldVal) { // watch it
+      ufos: function() { // watch it
         this.draw_frequency_graph()
         this.draw_time_graph()
       }
