@@ -38,8 +38,8 @@
     <br>
     <br>
     <div class='font-sans text-lg text-white'>
-      <h2>Des visites très longue</h2>
-      <p>Les extra terrestre ne prennent plus la peine de se cacher. Ils restent visibles plusieurs heures chez plusieurs observateurs</p>
+      <h2>De plus en plus rapides !</h2>
+      <p>Avant, les observations avaient lieu sur de nombreuses minutes. Ce temps s'est significativement raccourcis. Cela semble indiquer que leurs technologies évolues</p>
       <vue-c3 :handler="time" class="text-center"></vue-c3>
     </div>
     
@@ -108,7 +108,7 @@
 
       draw_time_graph(){
         var x = ["x"]
-        var time = ["Temps moyen d'observation en heure"]
+        var time = ["Temps median d'observation en minute"]
         const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
 
         var tmp = {}
@@ -130,7 +130,7 @@
 
         for(var key in tmp){
           x.push(key)
-          time.push(average(tmp[key])/60)
+          time.push(this.median(tmp[key]))
         }
 
         var data = {
@@ -146,6 +146,17 @@
         }
 
         this.time.$emit('init', data)
+      },
+
+      median(values){
+        values.sort( function(a,b) {return a - b;} );
+
+        var half = Math.floor(values.length/2);
+
+        if(values.length % 2)
+            return values[half];
+        else
+            return (values[half-1] + values[half]) / 2.0;
       }
     },
     mounted(){
