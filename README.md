@@ -1,21 +1,17 @@
-# visu
+# How to use the project
+
+You will need to have npm or yarn as dependy manager installed. 
 
 ## Project setup
 ```
+npm install
+or
 yarn install
 ```
 
-### Compiles and hot-reloads for development
+### Compiles and launch server
 ```
-yarn run serve
-```
-
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Lints and fixes files
-```
-yarn run lint
+npm run serve
+or
+yarn serve
 ```
