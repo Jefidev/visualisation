@@ -1,7 +1,7 @@
 <template >
 <div>
 
-  <div class="container mx-auto py-8 m-0">
+  <div class="container bg-white  mx-auto m-4 rounded shadow-lg p-8 m-0">
     <div class="font-sans text-lg">
       <h1 class="text-center py-4">UFO Nation: Ils sont déjà la !</h1>
       <br>
